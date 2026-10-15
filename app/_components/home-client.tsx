@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import AboutDialog from "@/app/_components/about-dialog";
 import {
   useEffect,
   useMemo,
@@ -730,12 +731,17 @@ export default function Home() {
             height={56}
             priority
           />
-          <h1>Pixel Art Designer</h1>
+          <div>
+            <h1>Pixel Art Designer</h1>
+          </div>
         </div>
-        <p className="subtle">
-          Create pixel art and brick mosaics with custom grids. Export PNG
-          images, parts lists, and building instructions.
-        </p>
+        <div className="app-intro">
+          <p className="subtle">
+            Create pixel art and brick mosaics with custom grids. Export PNG
+            images, parts lists, and building instructions.
+          </p>
+          <AboutDialog />
+        </div>
 
         <section>
           <h2>Projects</h2>

@@ -109,15 +109,13 @@ button.selected {
 }
 
 .designer-guide {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 40px 24px;
+  padding-top: 24px;
   display: grid;
   gap: 16px;
   line-height: 1.65;
 }
 
-.designer-guide h2 {
+.designer-guide h3 {
   color: var(--text);
   font-size: 1.25rem;
   text-transform: none;
@@ -516,4 +514,95 @@ button.selected {
 
 .selection-resize-handle:hover {
   background: #115e59;
+}
+
+.app-intro {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+}
+
+.about-link {
+  justify-self: start;
+  border: 0;
+  text-align: left;
+  padding: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.82rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.about-link:hover {
+  background: transparent;
+  color: var(--accent-strong);
+}
+
+.about-dialog {
+  width: min(600px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 24px 80px rgb(28 25 23 / 24%);
+}
+
+.about-dialog::backdrop {
+  background: rgb(28 25 23 / 45%);
+  backdrop-filter: blur(4px);
+}
+
+.about-content {
+  padding: 28px;
+}
+
+.about-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.about-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.about-close:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+.designer-guide h3 {
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.designer-guide h4 {
+  margin: 8px 0 -8px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.designer-guide ol {
+  list-style: decimal;
+}
+
+.designer-guide li + li {
+  margin-top: 6px;
 }
