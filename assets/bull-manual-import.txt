@@ -1,0 +1,1901 @@
+{
+  "format": "lego-art-project-v1",
+  "exportedAt": "2026-04-14T10:36:07.074Z",
+  "project": {
+    "id": "7d01ec9a-f4f1-4546-b1d2-bull-manual-0001",
+    "schemaVersion": 1,
+    "name": "Bull Pixel Art (Manual Approx)",
+    "createdAt": "2026-04-14T10:36:07.074Z",
+    "updatedAt": "2026-04-14T10:36:07.074Z",
+    "width": 32,
+    "height": 32,
+    "palette": [
+      {
+        "id": "white",
+        "name": "White",
+        "hex": "#f8fafc"
+      },
+      {
+        "id": "orange",
+        "name": "Orange",
+        "hex": "#f27a2a"
+      },
+      {
+        "id": "pink",
+        "name": "Pink",
+        "hex": "#e8b2dd"
+      },
+      {
+        "id": "leaf-green",
+        "name": "Leaf Green",
+        "hex": "#2f8e4a"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "hex": "#1c1f22"
+      },
+      {
+        "id": "red",
+        "name": "Red",
+        "hex": "#c7352e"
+      },
+      {
+        "id": "yellow",
+        "name": "Yellow",
+        "hex": "#f0d22d"
+      },
+      {
+        "id": "dark-blue",
+        "name": "Dark Blue",
+        "hex": "#1f4ea8"
+      },
+      {
+        "id": "deep-green",
+        "name": "Deep Green",
+        "hex": "#216a45"
+      },
+      {
+        "id": "rose-red",
+        "name": "Rose Red",
+        "hex": "#bf3f69"
+      },
+      {
+        "id": "beige",
+        "name": "Beige",
+        "hex": "#e9d0b1"
+      },
+      {
+        "id": "light-gray",
+        "name": "Light Gray",
+        "hex": "#c2c7ce"
+      },
+      {
+        "id": "light-blue",
+        "name": "Light Blue",
+        "hex": "#6ea7df"
+      },
+      {
+        "id": "dark-gray",
+        "name": "Dark Gray",
+        "hex": "#525861"
+      },
+      {
+        "id": "brown",
+        "name": "Brown",
+        "hex": "#5a3f29"
+      },
+      {
+        "id": "purple",
+        "name": "Purple",
+        "hex": "#5f3cae"
+      },
+      {
+        "id": "light-yellow",
+        "name": "Light Yellow",
+        "hex": "#e4d8a8"
+      },
+      {
+        "id": "light-purple",
+        "name": "Light Purple",
+        "hex": "#a88cdd"
+      },
+      {
+        "id": "mixed",
+        "name": "Mixed",
+        "hex": "#9fa68d"
+      },
+      {
+        "id": "cyan",
+        "name": "Cyan",
+        "hex": "#39b6c8"
+      }
+    ],
+    "cells": {
+      "18:3": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "19:3": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "28:3": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "29:3": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "17:4": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "18:4": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "19:4": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "28:4": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "29:4": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "30:4": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "15:5": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "16:5": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "17:5": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "18:5": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "19:5": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "20:5": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:5": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "27:5": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "28:5": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "29:5": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "30:5": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "10:6": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:6": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:6": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:6": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "14:6": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "15:6": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "16:6": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "17:6": {
+        "partType": "plate_1x1",
+        "colorId": "orange"
+      },
+      "18:6": {
+        "partType": "plate_1x1",
+        "colorId": "orange"
+      },
+      "19:6": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "20:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "21:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "22:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "23:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "24:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "25:6": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "26:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "27:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "28:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "29:6": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "30:6": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "31:6": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "8:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:7": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:7": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "16:7": {
+        "partType": "plate_1x1",
+        "colorId": "orange"
+      },
+      "17:7": {
+        "partType": "plate_1x1",
+        "colorId": "orange"
+      },
+      "18:7": {
+        "partType": "plate_1x1",
+        "colorId": "orange"
+      },
+      "19:7": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "20:7": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "21:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "22:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "23:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "24:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "25:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "26:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "27:7": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "28:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "29:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "30:7": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "31:7": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "6:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:8": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:8": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "18:8": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "19:8": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "20:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "21:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "22:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "23:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "24:8": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "25:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "26:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "27:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "28:8": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "29:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "30:8": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "5:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:9": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "18:9": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "19:9": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "20:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "23:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "24:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "25:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "26:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "27:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "28:9": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "29:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "30:9": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:10": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "10:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:10": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "20:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:10": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "23:10": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "24:10": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "25:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "27:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "28:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "29:10": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "2:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "8:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "9:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "10:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "11:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "12:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "18:11": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "19:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:11": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "24:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:11": {
+        "partType": "plate_1x1",
+        "colorId": "white"
+      },
+      "27:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "28:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "29:11": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "2:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:12": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "8:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:12": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "10:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:12": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "12:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "27:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "28:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "29:12": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "1:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "2:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:13": {
+        "partType": "plate_1x1",
+        "colorId": "dark-gray"
+      },
+      "10:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:13": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "27:13": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "28:13": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "1:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "27:14": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "28:14": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "29:14": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "1:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:15": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:15": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "27:15": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "28:15": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "29:15": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "2:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:16": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:16": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "27:16": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "28:16": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "2:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:17": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "26:17": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "1:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "25:18": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "1:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "7:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "24:19": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "6:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "11:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "12:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "13:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "17:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "23:20": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:21": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "9:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "10:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "16:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "18:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "20:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "21:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "22:21": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:22": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "4:22": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:22": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:22": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "14:22": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "15:22": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "19:22": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "3:23": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "4:23": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:23": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:23": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "14:23": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "15:23": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "19:23": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "3:24": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "4:24": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "5:24": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:24": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "9:24": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:24": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "15:24": {
+        "partType": "plate_1x1",
+        "colorId": "light-yellow"
+      },
+      "19:24": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "3:25": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "4:25": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "8:25": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "9:25": {
+        "partType": "plate_1x1",
+        "colorId": "black"
+      },
+      "14:25": {
+        "partType": "plate_1x1",
+        "colorId": "beige"
+      },
+      "15:25": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      },
+      "16:25": {
+        "partType": "plate_1x1",
+        "colorId": "brown"
+      }
+    }
+  }
+}
