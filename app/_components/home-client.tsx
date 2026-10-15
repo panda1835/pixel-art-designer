@@ -57,6 +57,9 @@ interface EditorModel {
   zoom: number;
 }
 
+type ResizeCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+const RESIZE_CORNERS: ResizeCorner[] = ["top-left", "top-right", "bottom-left", "bottom-right"];
+
 interface GridSelection {
   anchor: { x: number; y: number };
   focus: { x: number; y: number };
@@ -87,12 +90,13 @@ export default function Home() {
 
   const dragStateRef = useRef({
     active: false,
-    action: "paint" as "paint" | "select" | "move",
+    action: "paint" as "paint" | "select" | "move" | "resize",
     moveSource: null as {
       selection: GridSelection;
       history: HistoryState;
     } | null,
     anchor: null as { x: number; y: number } | null,
+    corner: "bottom-right" as ResizeCorner,
     touched: new Set<string>(),
   });
   const clipboardRef = useRef<Array<Array<PlacedPart | null>>>([]);
@@ -292,7 +296,7 @@ export default function Home() {
       const target = event.target;
       if (
         target instanceof Element &&
-        target.closest(".stud-cell.in-selection")
+        target.closest(".stud-cell.in-selection, .selection-resize-handle")
       ) {
         return;
       }
@@ -354,8 +358,8 @@ export default function Home() {
       if (current.toolMode === "erase") {
         nextPlacement = null;
       } else if (existing && existing.colorId === current.selectedColorId) {
-        // Quick erase in paint mode when clicking the currently selected color.
-        nextPlacement = null;
+        // Painting over the selected color preserves the existing tile.
+        return current;
       } else {
         nextPlacement = {
           partType: current.selectedPart,
@@ -405,7 +409,7 @@ export default function Home() {
       }
       dragStateRef.current.action = "select";
       dragStateRef.current.anchor = { x, y };
-      setSelection(selection ? null : { anchor: { x, y }, focus: { x, y } });
+      setSelection({ anchor: { x, y }, focus: { x, y } });
       return;
     }
 
@@ -415,8 +419,22 @@ export default function Home() {
     applySingleCell(x, y);
   }
 
-  function continueDrag(x: number, y: number) {
+  function continueDrag(x: number, y: number, preserveAspectRatio = false) {
     if (!dragStateRef.current.active) {
+      return;
+    }
+    if (dragStateRef.current.action === "resize") {
+      const source = dragStateRef.current.moveSource;
+      if (source) {
+        const offset = dragStateRef.current.anchor;
+        const resized = resizeSelection(source.history, source.selection, x - (offset?.x ?? 0), y - (offset?.y ?? 0), dragStateRef.current.corner, preserveAspectRatio);
+        setSelection(resized.selection);
+        setModel((current) => ({
+          ...current,
+          history: resized.history,
+          projects: upsertProject(current.projects, current.activeProjectId, resized.history.project),
+        }));
+      }
       return;
     }
     if (dragStateRef.current.action === "move") {
@@ -823,6 +841,217 @@ export default function Home() {
         </section>
 
         <section>
+          <h2>Exports</h2>
+          <div className="stacked-form">
+            <button onClick={handleExportPng}>Export PNG</button>
+            <button onClick={handleExportBomCsv}>Export BOM (CSV)</button>
+            <button onClick={handleExportInstructionsJson}>
+              Export Instructions (JSON)
+            </button>
+            <button onClick={handleExportInstructionsHtml}>
+              Export Instructions (HTML)
+            </button>
+            <button onClick={handleExportProjectTxt}>
+              Export Project (TXT)
+            </button>
+            <button onClick={handleImportFilePick}>Import Project (TXT)</button>
+            <input
+              ref={importFileRef}
+              type="file"
+              accept=".txt,application/json,text/plain"
+              onChange={handleImportProjectTxt}
+              hidden
+            />
+          </div>
+        </section>
+      </aside>
+
+      <main
+        className="editor-main"
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onPointerLeave={endDrag}
+      >
+        <div className="stats-strip">
+          <strong>{project.name}</strong>
+          <span>
+            {project.width}x{project.height} studs
+          </span>
+          <span>{occupiedStuds} placed</span>
+          {model.toolMode === "select" ? (
+            <span>
+              Drag to select; use arrow keys or drag inside the box to move. Drag any corner handle to resize; hold Shift to preserve proportions.
+            </span>
+          ) : null}
+          <span>{(coverage * 100).toFixed(1)}% coverage</span>
+          {selectedColor ? (
+            <span className="selected-color-preview">
+              <i style={{ backgroundColor: selectedColor.hex }} />
+              {selectedColor.name}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="board-wrapper">
+          <div className="board-with-axes">
+            <div className="board-corner" />
+            <div
+              className="board-top-axis"
+              style={{
+                gridTemplateColumns: `repeat(${project.width}, ${cellSize}px)`,
+              }}
+            >
+              {columnIndices.map((column) => (
+                <span key={`col-${column}`} className="axis-label">
+                  {shouldShowAxisMarker(column) ? column : ""}
+                </span>
+              ))}
+            </div>
+            <div
+              className="board-left-axis"
+              style={{
+                gridTemplateRows: `repeat(${project.height}, ${cellSize}px)`,
+              }}
+            >
+              {rowIndices.map((row) => (
+                <span key={`row-${row}`} className="axis-label">
+                  {shouldShowAxisMarker(row) ? row : ""}
+                </span>
+              ))}
+            </div>
+            <div
+              className="board-surface"
+              onPointerMove={(event) => {
+                if (!dragStateRef.current.active) return;
+                const rect = event.currentTarget.getBoundingClientRect();
+                continueDrag(
+                  Math.max(0, Math.min(project.width - 1, Math.floor((event.clientX - rect.left - 1) / cellSize))),
+                  Math.max(0, Math.min(project.height - 1, Math.floor((event.clientY - rect.top - 1) / cellSize))),
+                  event.shiftKey,
+                );
+              }}
+              onPointerUp={endDrag}
+              onPointerCancel={endDrag}
+              onLostPointerCapture={endDrag}
+            >
+              <div
+                className="board-grid"
+                style={{
+                  gridTemplateColumns: `repeat(${project.width}, ${cellSize}px)`,
+                  gridTemplateRows: `repeat(${project.height}, ${cellSize}px)`,
+                }}
+              >
+                {coordinates.map(({ x, y }) => {
+                  const placement = project.cells[cellKey(x, y)] ?? null;
+                  const color = placement
+                    ? paletteById.get(placement.colorId)
+                    : null;
+                  const bounds = selection ? getSelectionBounds(selection) : null;
+                  const isSelected =
+                    bounds !== null &&
+                    x >= bounds.left &&
+                    x <= bounds.right &&
+                    y >= bounds.top &&
+                    y <= bounds.bottom;
+                  const isCorner = bounds && isSelected &&
+                    (x === bounds.left || x === bounds.right) &&
+                    (y === bounds.top || y === bounds.bottom);
+                  const selectionEdges =
+                    isSelected && bounds
+                      ? [
+                          y === bounds.top && "selection-top",
+                          x === bounds.right && "selection-right",
+                          y === bounds.bottom && "selection-bottom",
+                          x === bounds.left && "selection-left",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")
+                      : "";
+
+                  return (
+                    <button
+                      key={`${x}-${y}`}
+                      className={`stud-cell${isSelected ? ` in-selection ${selectionEdges}${model.toolMode === "select" ? " movable" : ""}` : ""}`}
+                      style={{
+                        backgroundColor: placement ? color?.hex ?? "#111827" : undefined,
+                        zIndex: isCorner ? 2 : undefined,
+                      }}
+                      onPointerDown={(event) => {
+                        if (event.button !== 0) return;
+                        event.preventDefault();
+                        event.currentTarget.focus({ preventScroll: true });
+                        event.currentTarget.closest(".board-surface")?.setPointerCapture(event.pointerId);
+                        startDrag(x, y);
+                      }}
+                      title={`(${x + 1}, ${y + 1})`}
+                    >
+                      {model.toolMode === "select" && selection && bounds && RESIZE_CORNERS.map((corner) => {
+                        const isLeft = corner.endsWith("left");
+                        const isTop = corner.startsWith("top");
+                        if (x !== (isLeft ? bounds.left : bounds.right) || y !== (isTop ? bounds.top : bounds.bottom)) return null;
+                        return (
+                          <span
+                            key={corner}
+                            className="selection-resize-handle"
+                            aria-label={`Resize selection from ${corner} corner`}
+                            title={`Drag ${corner} corner to resize`}
+                            style={{
+                              left: isLeft ? -2 : undefined,
+                              right: isLeft ? undefined : -2,
+                              top: isTop ? -2 : undefined,
+                              bottom: isTop ? undefined : -2,
+                              transform: `translate(${isLeft ? "-50%" : "50%"}, ${isTop ? "-50%" : "50%"})`,
+                              cursor: isLeft === isTop ? "nwse-resize" : "nesw-resize",
+                            }}
+                            onPointerDown={(event) => {
+                              if (event.button !== 0) return;
+                              event.preventDefault();
+                              event.stopPropagation();
+                              event.currentTarget.closest(".board-surface")?.setPointerCapture(event.pointerId);
+                              dragStateRef.current.active = true;
+                              dragStateRef.current.action = "resize";
+                              dragStateRef.current.corner = corner;
+                              dragStateRef.current.anchor = {
+                                x: isLeft ? bounds.left : bounds.right,
+                                y: isTop ? bounds.top : bounds.bottom,
+                              };
+                              // Preserve the grab offset so a click alone never changes size.
+                              const board = event.currentTarget.closest(".board-surface")!;
+                              const rect = board.getBoundingClientRect();
+                              dragStateRef.current.anchor = {
+                                x: Math.floor((event.clientX - rect.left - 1) / cellSize) - dragStateRef.current.anchor.x,
+                                y: Math.floor((event.clientY - rect.top - 1) / cellSize) - dragStateRef.current.anchor.y,
+                              };
+                              dragStateRef.current.moveSource = { selection, history: model.history };
+                            }}
+                          />
+                        );
+                      })}
+                      {placement ? (
+                        <span
+                          className={
+                            placement.partType === "tile_1x1_round"
+                              ? "stud-part round"
+                              : placement.partType === "tile_1x1_square"
+                                ? "stud-part square"
+                                : "stud-part plate"
+                          }
+                          style={{ backgroundColor: color?.hex ?? "#111827" }}
+                        />
+                      ) : (
+                        <span className="stud-empty" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside className="panel right-panel">
+        <section>
           <h2>Editor</h2>
           <label>
             Active Name
@@ -916,157 +1145,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section>
-          <h2>Exports</h2>
-          <div className="stacked-form">
-            <button onClick={handleExportPng}>Export PNG</button>
-            <button onClick={handleExportBomCsv}>Export BOM (CSV)</button>
-            <button onClick={handleExportInstructionsJson}>
-              Export Instructions (JSON)
-            </button>
-            <button onClick={handleExportInstructionsHtml}>
-              Export Instructions (HTML)
-            </button>
-            <button onClick={handleExportProjectTxt}>
-              Export Project (TXT)
-            </button>
-            <button onClick={handleImportFilePick}>Import Project (TXT)</button>
-            <input
-              ref={importFileRef}
-              type="file"
-              accept=".txt,application/json,text/plain"
-              onChange={handleImportProjectTxt}
-              hidden
-            />
-          </div>
-        </section>
-      </aside>
-
-      <main
-        className="editor-main"
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onPointerLeave={endDrag}
-      >
-        <div className="stats-strip">
-          <strong>{project.name}</strong>
-          <span>
-            {project.width}x{project.height} studs
-          </span>
-          <span>{occupiedStuds} placed</span>
-          {model.toolMode === "select" ? (
-            <span>
-              Drag to select; use arrow keys or drag inside the box to move.
-            </span>
-          ) : null}
-          <span>{(coverage * 100).toFixed(1)}% coverage</span>
-          {selectedColor ? (
-            <span className="selected-color-preview">
-              <i style={{ backgroundColor: selectedColor.hex }} />
-              {selectedColor.name}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="board-wrapper">
-          <div className="board-with-axes">
-            <div className="board-corner" />
-            <div
-              className="board-top-axis"
-              style={{
-                gridTemplateColumns: `repeat(${project.width}, ${cellSize}px)`,
-              }}
-            >
-              {columnIndices.map((column) => (
-                <span key={`col-${column}`} className="axis-label">
-                  {shouldShowAxisMarker(column) ? column : ""}
-                </span>
-              ))}
-            </div>
-            <div
-              className="board-left-axis"
-              style={{
-                gridTemplateRows: `repeat(${project.height}, ${cellSize}px)`,
-              }}
-            >
-              {rowIndices.map((row) => (
-                <span key={`row-${row}`} className="axis-label">
-                  {shouldShowAxisMarker(row) ? row : ""}
-                </span>
-              ))}
-            </div>
-            <div
-              className="board-grid"
-              style={{
-                gridTemplateColumns: `repeat(${project.width}, ${cellSize}px)`,
-                gridTemplateRows: `repeat(${project.height}, ${cellSize}px)`,
-              }}
-            >
-              {coordinates.map(({ x, y }) => {
-                const placement = project.cells[cellKey(x, y)] ?? null;
-                const color = placement
-                  ? paletteById.get(placement.colorId)
-                  : null;
-                const bounds = selection ? getSelectionBounds(selection) : null;
-                const isSelected =
-                  bounds !== null &&
-                  x >= bounds.left &&
-                  x <= bounds.right &&
-                  y >= bounds.top &&
-                  y <= bounds.bottom;
-                const selectionEdges =
-                  isSelected && bounds
-                    ? [
-                        y === bounds.top && "selection-top",
-                        x === bounds.right && "selection-right",
-                        y === bounds.bottom && "selection-bottom",
-                        x === bounds.left && "selection-left",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")
-                    : "";
-
-                return (
-                  <button
-                    key={`${x}-${y}`}
-                    className={`stud-cell${isSelected ? ` in-selection ${selectionEdges}${model.toolMode === "select" ? " movable" : ""}` : ""}`}
-                    style={
-                      placement
-                        ? { backgroundColor: color?.hex ?? "#111827" }
-                        : undefined
-                    }
-                    onPointerDown={(event) => {
-                      if (event.button !== 0) return;
-                      event.preventDefault();
-                      event.currentTarget.focus({ preventScroll: true });
-                      startDrag(x, y);
-                    }}
-                    onPointerEnter={() => continueDrag(x, y)}
-                    title={`(${x + 1}, ${y + 1})`}
-                  >
-                    {placement ? (
-                      <span
-                        className={
-                          placement.partType === "tile_1x1_round"
-                            ? "stud-part round"
-                            : placement.partType === "tile_1x1_square"
-                              ? "stud-part square"
-                              : "stud-part plate"
-                        }
-                        style={{ backgroundColor: color?.hex ?? "#111827" }}
-                      />
-                    ) : (
-                      <span className="stud-empty" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <aside className="panel right-panel">
         <section>
           <h2>Bill of Materials</h2>
           <div className="table-like">
@@ -1285,6 +1363,75 @@ function moveSelection(
       anchor: { x: selection.anchor.x + dx, y: selection.anchor.y + dy },
       focus: { x: selection.focus.x + dx, y: selection.focus.y + dy },
     },
+  };
+}
+
+// Sample the original selection on every preview to avoid cumulative scaling loss.
+function resizeSelection(
+  history: HistoryState,
+  selection: GridSelection,
+  x: number,
+  y: number,
+  corner: ResizeCorner,
+  preserveAspectRatio = false,
+) {
+  const bounds = getSelectionBounds(selection);
+  let left = corner.endsWith("left") ? Math.max(0, Math.min(bounds.right, x)) : bounds.left;
+  let top = corner.startsWith("top") ? Math.max(0, Math.min(bounds.bottom, y)) : bounds.top;
+  let right = corner.endsWith("right") ? Math.max(bounds.left, Math.min(history.project.width - 1, x)) : bounds.right;
+  let bottom = corner.startsWith("bottom") ? Math.max(bounds.top, Math.min(history.project.height - 1, y)) : bounds.bottom;
+  const sourceWidth = bounds.right - bounds.left + 1;
+  const sourceHeight = bounds.bottom - bounds.top + 1;
+  if (preserveAspectRatio) {
+    const isLeft = corner.endsWith("left");
+    const isTop = corner.startsWith("top");
+    const maxWidth = isLeft ? bounds.right + 1 : history.project.width - bounds.left;
+    const maxHeight = isTop ? bounds.bottom + 1 : history.project.height - bounds.top;
+    // Project the pointer onto the original diagonal, then clamp both axes together.
+    const scale = Math.min(
+      maxWidth / sourceWidth,
+      maxHeight / sourceHeight,
+      Math.max(
+        1 / sourceWidth,
+        1 / sourceHeight,
+        ((right - left + 1) * sourceWidth + (bottom - top + 1) * sourceHeight) /
+          (sourceWidth ** 2 + sourceHeight ** 2),
+      ),
+    );
+    const scaledWidth = Math.max(1, Math.round(sourceWidth * scale));
+    const scaledHeight = Math.max(1, Math.round(sourceHeight * scale));
+    left = isLeft ? bounds.right - scaledWidth + 1 : bounds.left;
+    right = isLeft ? bounds.right : bounds.left + scaledWidth - 1;
+    top = isTop ? bounds.bottom - scaledHeight + 1 : bounds.top;
+    bottom = isTop ? bounds.bottom : bounds.top + scaledHeight - 1;
+  }
+  if (left === bounds.left && top === bounds.top && right === bounds.right && bottom === bounds.bottom) return { history, selection };
+
+  const width = right - left + 1;
+  const height = bottom - top + 1;
+  const updates = new Map<string, CellUpdate>();
+  for (let y = bounds.top; y <= bounds.bottom; y++) {
+    for (let x = bounds.left; x <= bounds.right; x++) {
+      updates.set(cellKey(x, y), { x, y, next: null });
+    }
+  }
+  // Nearest-neighbor image scaling keeps the palette and part shapes intact.
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const sourceX = bounds.left + Math.min(sourceWidth - 1, Math.floor((x + 0.5) * sourceWidth / width));
+      const sourceY = bounds.top + Math.min(sourceHeight - 1, Math.floor((y + 0.5) * sourceHeight / height));
+      const targetX = left + x;
+      const targetY = top + y;
+      updates.set(cellKey(targetX, targetY), {
+        x: targetX,
+        y: targetY,
+        next: history.project.cells[cellKey(sourceX, sourceY)] ?? null,
+      });
+    }
+  }
+  return {
+    history: applyUpdatesToHistory(history, [...updates.values()], "Resize Selection"),
+    selection: { anchor: { x: left, y: top }, focus: { x: right, y: bottom } },
   };
 }
 

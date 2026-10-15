@@ -322,12 +322,18 @@ button.selected {
   font-variant-numeric: tabular-nums;
 }
 
+.board-surface {
+  position: relative;
+  width: max-content;
+  margin-top: -1px;
+  margin-left: -1px;
+  touch-action: none;
+}
+
 .board-grid {
   display: grid;
   width: max-content;
   border: 1px solid #94a3b8;
-  margin-top: -1px;
-  margin-left: -1px;
   box-shadow: 0 10px 40px rgba(2, 6, 23, 0.12);
 }
 
@@ -394,7 +400,6 @@ button.selected {
   border-radius: 999px;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
   background: rgba(255, 255, 255, 0.35);
 }
 
@@ -493,4 +498,22 @@ button.selected {
 .app-brand img {
   flex-shrink: 0;
   border-radius: 4px;
+}
+
+.selection-resize-handle {
+  pointer-events: auto;
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  min-width: 0;
+  padding: 0;
+  border-radius: 3px;
+  z-index: 5;
+  border: 2px solid white;
+  background: #0f766e;
+  touch-action: none;
+}
+
+.selection-resize-handle:hover {
+  background: #115e59;
 }
