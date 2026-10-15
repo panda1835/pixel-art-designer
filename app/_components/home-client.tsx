@@ -59,7 +59,12 @@ interface EditorModel {
 }
 
 type ResizeCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
-const RESIZE_CORNERS: ResizeCorner[] = ["top-left", "top-right", "bottom-left", "bottom-right"];
+const RESIZE_CORNERS: ResizeCorner[] = [
+  "top-left",
+  "top-right",
+  "bottom-left",
+  "bottom-right",
+];
 
 interface GridSelection {
   anchor: { x: number; y: number };
@@ -127,6 +132,22 @@ export default function Home() {
       const bounds = selection ? getSelectionBounds(selection) : null;
       const key = event.key.toLowerCase();
       const isShortcut = event.metaKey || event.ctrlKey;
+      const toolMode =
+        key === "p"
+          ? "paint"
+          : key === "d"
+            ? "erase"
+            : key === "s"
+              ? "select"
+              : null;
+      if (toolMode && !isShortcut && !event.altKey && !event.isComposing) {
+        event.preventDefault();
+        if (event.repeat) return;
+        endDrag();
+        setSelection(null);
+        setModel((current) => ({ ...current, toolMode }));
+        return;
+      }
       const direction = {
         ArrowLeft: [-1, 0],
         ArrowRight: [1, 0],
@@ -341,7 +362,9 @@ export default function Home() {
     paletteById.get(model.selectedColorId) ?? project.palette[0];
 
   if (!isHydrated) {
-    return <div className="grid min-h-screen grid-cols-[310px_1fr_350px] [@media(max-width:1280px)]:grid-cols-[300px_1fr] [@media(max-width:1280px)]:grid-rows-[auto_auto] [@media(max-width:980px)]:block" />;
+    return (
+      <div className="grid min-h-screen grid-cols-[310px_1fr_350px] [@media(max-width:1280px)]:grid-cols-[300px_1fr] [@media(max-width:1280px)]:grid-rows-[auto_auto] [@media(max-width:980px)]:block" />
+    );
   }
 
   function applySingleCell(x: number, y: number) {
@@ -372,7 +395,7 @@ export default function Home() {
       const nextHistory = applyUpdatesToHistory(
         current.history,
         updates,
-        current.toolMode === "erase" ? "Erase" : "Paint",
+        current.toolMode === "erase" ? "Delete" : "Paint",
       );
 
       if (nextHistory === current.history) {
@@ -428,12 +451,23 @@ export default function Home() {
       const source = dragStateRef.current.moveSource;
       if (source) {
         const offset = dragStateRef.current.anchor;
-        const resized = resizeSelection(source.history, source.selection, x - (offset?.x ?? 0), y - (offset?.y ?? 0), dragStateRef.current.corner, preserveAspectRatio);
+        const resized = resizeSelection(
+          source.history,
+          source.selection,
+          x - (offset?.x ?? 0),
+          y - (offset?.y ?? 0),
+          dragStateRef.current.corner,
+          preserveAspectRatio,
+        );
         setSelection(resized.selection);
         setModel((current) => ({
           ...current,
           history: resized.history,
-          projects: upsertProject(current.projects, current.activeProjectId, resized.history.project),
+          projects: upsertProject(
+            current.projects,
+            current.activeProjectId,
+            resized.history.project,
+          ),
         }));
       }
       return;
@@ -733,7 +767,9 @@ export default function Home() {
             priority
           />
           <div>
-            <h1 className="text-[1.35rem] tracking-[0.01em]">Pixel Art Designer</h1>
+            <h1 className="text-[1.35rem] tracking-[0.01em]">
+              Pixel Art Designer
+            </h1>
           </div>
         </div>
         <div className="grid justify-items-start gap-1">
@@ -745,7 +781,9 @@ export default function Home() {
         </div>
 
         <section className="grid gap-2.5 rounded-xl border border-[#cbd5c1] bg-white p-3">
-          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">Projects</h2>
+          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">
+            Projects
+          </h2>
           <div className="grid gap-2">
             <label className="grid gap-1.5 text-[0.78rem] text-[#57534e]">
               Name
@@ -780,7 +818,12 @@ export default function Home() {
                 />
               </label>
             </div>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleCreateProject}>Create Project</button>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleCreateProject}
+            >
+              Create Project
+            </button>
           </div>
 
           <div className="grid max-h-42.5 gap-1.5 overflow-auto">
@@ -801,13 +844,18 @@ export default function Home() {
               </button>
             ))}
           </div>
-          <button className="cursor-pointer rounded-lg border border-transparent bg-[#b91c1c] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleDeleteActiveProject}>
+          <button
+            className="cursor-pointer rounded-lg border border-transparent bg-[#b91c1c] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#b91c1c] disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={handleDeleteActiveProject}
+          >
             Delete Active Project
           </button>
         </section>
 
         <section className="grid gap-2.5 rounded-xl border border-[#cbd5c1] bg-white p-3">
-          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">Colors</h2>
+          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">
+            Colors
+          </h2>
           <div className="grid grid-cols-2 gap-1.5">
             {project.palette.map((color) => (
               <button
@@ -825,7 +873,10 @@ export default function Home() {
                 }
                 title={`${color.name} (${color.hex})`}
               >
-                <span className="h-4.5 w-4.5 rounded-full border border-[rgba(0,0,0,0.3)]" style={{ backgroundColor: color.hex }} />
+                <span
+                  className="h-4.5 w-4.5 rounded-full border border-[rgba(0,0,0,0.3)]"
+                  style={{ backgroundColor: color.hex }}
+                />
                 <small className="text-[0.72rem]">{color.name}</small>
               </button>
             ))}
@@ -848,25 +899,56 @@ export default function Home() {
                 onChange={(event) => setNewColorHex(event.target.value)}
               />
             </label>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleAddColor}>Add Color</button>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleAddColor}
+            >
+              Add Color
+            </button>
           </div>
         </section>
 
         <section className="grid gap-2.5 rounded-xl border border-[#cbd5c1] bg-white p-3">
-          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">Exports</h2>
+          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">
+            Exports
+          </h2>
           <div className="grid gap-2">
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleExportPng}>Export PNG</button>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleExportBomCsv}>Export BOM (CSV)</button>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleExportInstructionsJson}>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleExportPng}
+            >
+              Export PNG
+            </button>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleExportBomCsv}
+            >
+              Export BOM (CSV)
+            </button>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleExportInstructionsJson}
+            >
               Export Instructions (JSON)
             </button>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleExportInstructionsHtml}>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleExportInstructionsHtml}
+            >
               Export Instructions (HTML)
             </button>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleExportProjectTxt}>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleExportProjectTxt}
+            >
               Export Project (TXT)
             </button>
-            <button className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60" onClick={handleImportFilePick}>Import Project (TXT)</button>
+            <button
+              className="cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={handleImportFilePick}
+            >
+              Import Project (TXT)
+            </button>
             <input
               className="w-full rounded-lg border border-[#cbd5c1] bg-white p-2 text-[#1c1917]"
               ref={importFileRef}
@@ -893,13 +975,18 @@ export default function Home() {
           <span>{occupiedStuds} placed</span>
           {model.toolMode === "select" ? (
             <span>
-              Drag to select; use arrow keys or drag inside the box to move. Drag any corner handle to resize; hold Shift to preserve proportions.
+              Drag to select; use arrow keys or drag inside the box to move.
+              Drag any corner handle to resize; hold Shift to preserve
+              proportions.
             </span>
           ) : null}
           <span>{(coverage * 100).toFixed(1)}% coverage</span>
           {selectedColor ? (
             <span className="inline-flex items-center gap-1.5">
-              <i className="inline-block h-3 w-3 rounded-full border border-[rgba(0,0,0,0.3)]" style={{ backgroundColor: selectedColor.hex }} />
+              <i
+                className="inline-block h-3 w-3 rounded-full border border-[rgba(0,0,0,0.3)]"
+                style={{ backgroundColor: selectedColor.hex }}
+              />
               {selectedColor.name}
             </span>
           ) : null}
@@ -915,7 +1002,10 @@ export default function Home() {
               }}
             >
               {columnIndices.map((column) => (
-                <span key={`col-${column}`} className="grid place-items-center overflow-hidden border-r border-b border-[rgba(148,163,184,0.5)] text-[0.65rem] leading-none whitespace-nowrap text-[#334155] tabular-nums select-none">
+                <span
+                  key={`col-${column}`}
+                  className="grid place-items-center overflow-hidden border-r border-b border-[rgba(148,163,184,0.5)] text-[0.65rem] leading-none whitespace-nowrap text-[#334155] tabular-nums select-none"
+                >
                   {shouldShowAxisMarker(column) ? column : ""}
                 </span>
               ))}
@@ -927,7 +1017,10 @@ export default function Home() {
               }}
             >
               {rowIndices.map((row) => (
-                <span key={`row-${row}`} className="grid place-items-center overflow-hidden border-r border-b border-[rgba(148,163,184,0.5)] text-[0.65rem] leading-none whitespace-nowrap text-[#334155] tabular-nums select-none">
+                <span
+                  key={`row-${row}`}
+                  className="grid place-items-center overflow-hidden border-r border-b border-[rgba(148,163,184,0.5)] text-[0.65rem] leading-none whitespace-nowrap text-[#334155] tabular-nums select-none"
+                >
                   {shouldShowAxisMarker(row) ? row : ""}
                 </span>
               ))}
@@ -939,8 +1032,20 @@ export default function Home() {
                 if (!dragStateRef.current.active) return;
                 const rect = event.currentTarget.getBoundingClientRect();
                 continueDrag(
-                  Math.max(0, Math.min(project.width - 1, Math.floor((event.clientX - rect.left - 1) / cellSize))),
-                  Math.max(0, Math.min(project.height - 1, Math.floor((event.clientY - rect.top - 1) / cellSize))),
+                  Math.max(
+                    0,
+                    Math.min(
+                      project.width - 1,
+                      Math.floor((event.clientX - rect.left - 1) / cellSize),
+                    ),
+                  ),
+                  Math.max(
+                    0,
+                    Math.min(
+                      project.height - 1,
+                      Math.floor((event.clientY - rect.top - 1) / cellSize),
+                    ),
+                  ),
                   event.shiftKey,
                 );
               }}
@@ -960,14 +1065,18 @@ export default function Home() {
                   const color = placement
                     ? paletteById.get(placement.colorId)
                     : null;
-                  const bounds = selection ? getSelectionBounds(selection) : null;
+                  const bounds = selection
+                    ? getSelectionBounds(selection)
+                    : null;
                   const isSelected =
                     bounds !== null &&
                     x >= bounds.left &&
                     x <= bounds.right &&
                     y >= bounds.top &&
                     y <= bounds.bottom;
-                  const isCorner = bounds && isSelected &&
+                  const isCorner =
+                    bounds &&
+                    isSelected &&
                     (x === bounds.left || x === bounds.right) &&
                     (y === bounds.top || y === bounds.bottom);
                   const selectionEdges =
@@ -975,7 +1084,8 @@ export default function Home() {
                       ? [
                           y === bounds.top && "border-t-2 border-t-[#0f766e]",
                           x === bounds.right && "border-r-2 border-r-[#0f766e]",
-                          y === bounds.bottom && "border-b-2 border-b-[#0f766e]",
+                          y === bounds.bottom &&
+                            "border-b-2 border-b-[#0f766e]",
                           x === bounds.left && "border-l-2 border-l-[#0f766e]",
                         ]
                           .filter(Boolean)
@@ -987,60 +1097,88 @@ export default function Home() {
                       key={`${x}-${y}`}
                       className={`grid h-full w-full place-items-center rounded-none border border-[rgba(148,163,184,0.45)] bg-[#f3f6fb] p-0 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] ${isSelected ? `relative z-1 shadow-[inset_0_0_0_2px_#0f766e] ${selectionEdges}${model.toolMode === "select" ? " cursor-move" : " cursor-pointer"}` : "cursor-pointer"}`}
                       style={{
-                        backgroundColor: placement ? color?.hex ?? "#111827" : undefined,
+                        backgroundColor: placement
+                          ? (color?.hex ?? "#111827")
+                          : undefined,
                         zIndex: isCorner ? 2 : undefined,
                       }}
                       onPointerDown={(event) => {
                         if (event.button !== 0) return;
                         event.preventDefault();
                         event.currentTarget.focus({ preventScroll: true });
-                        event.currentTarget.closest("[data-board-surface]")?.setPointerCapture(event.pointerId);
+                        event.currentTarget
+                          .closest("[data-board-surface]")
+                          ?.setPointerCapture(event.pointerId);
                         startDrag(x, y);
                       }}
                       title={`(${x + 1}, ${y + 1})`}
                     >
-                      {model.toolMode === "select" && selection && bounds && RESIZE_CORNERS.map((corner) => {
-                        const isLeft = corner.endsWith("left");
-                        const isTop = corner.startsWith("top");
-                        if (x !== (isLeft ? bounds.left : bounds.right) || y !== (isTop ? bounds.top : bounds.bottom)) return null;
-                        return (
-                          <span
-                            key={corner}
-                            className="pointer-events-auto absolute z-5 h-4 w-4 min-w-0 touch-none rounded-[3px] border-2 border-white bg-[#0f766e] p-0 hover:bg-[#115e59]"
-                            aria-label={`Resize selection from ${corner} corner`}
-                            title={`Drag ${corner} corner to resize`}
-                            style={{
-                              left: isLeft ? -2 : undefined,
-                              right: isLeft ? undefined : -2,
-                              top: isTop ? -2 : undefined,
-                              bottom: isTop ? undefined : -2,
-                              transform: `translate(${isLeft ? "-50%" : "50%"}, ${isTop ? "-50%" : "50%"})`,
-                              cursor: isLeft === isTop ? "nwse-resize" : "nesw-resize",
-                            }}
-                            onPointerDown={(event) => {
-                              if (event.button !== 0) return;
-                              event.preventDefault();
-                              event.stopPropagation();
-                              event.currentTarget.closest("[data-board-surface]")?.setPointerCapture(event.pointerId);
-                              dragStateRef.current.active = true;
-                              dragStateRef.current.action = "resize";
-                              dragStateRef.current.corner = corner;
-                              dragStateRef.current.anchor = {
-                                x: isLeft ? bounds.left : bounds.right,
-                                y: isTop ? bounds.top : bounds.bottom,
-                              };
-                              // Preserve the grab offset so a click alone never changes size.
-                              const board = event.currentTarget.closest("[data-board-surface]")!;
-                              const rect = board.getBoundingClientRect();
-                              dragStateRef.current.anchor = {
-                                x: Math.floor((event.clientX - rect.left - 1) / cellSize) - dragStateRef.current.anchor.x,
-                                y: Math.floor((event.clientY - rect.top - 1) / cellSize) - dragStateRef.current.anchor.y,
-                              };
-                              dragStateRef.current.moveSource = { selection, history: model.history };
-                            }}
-                          />
-                        );
-                      })}
+                      {model.toolMode === "select" &&
+                        selection &&
+                        bounds &&
+                        RESIZE_CORNERS.map((corner) => {
+                          const isLeft = corner.endsWith("left");
+                          const isTop = corner.startsWith("top");
+                          if (
+                            x !== (isLeft ? bounds.left : bounds.right) ||
+                            y !== (isTop ? bounds.top : bounds.bottom)
+                          )
+                            return null;
+                          return (
+                            <span
+                              key={corner}
+                              className="pointer-events-auto absolute z-5 h-4 w-4 min-w-0 touch-none rounded-[3px] border-2 border-white bg-[#0f766e] p-0 hover:bg-[#115e59]"
+                              aria-label={`Resize selection from ${corner} corner`}
+                              title={`Drag ${corner} corner to resize`}
+                              style={{
+                                left: isLeft ? -2 : undefined,
+                                right: isLeft ? undefined : -2,
+                                top: isTop ? -2 : undefined,
+                                bottom: isTop ? undefined : -2,
+                                transform: `translate(${isLeft ? "-50%" : "50%"}, ${isTop ? "-50%" : "50%"})`,
+                                cursor:
+                                  isLeft === isTop
+                                    ? "nwse-resize"
+                                    : "nesw-resize",
+                              }}
+                              onPointerDown={(event) => {
+                                if (event.button !== 0) return;
+                                event.preventDefault();
+                                event.stopPropagation();
+                                event.currentTarget
+                                  .closest("[data-board-surface]")
+                                  ?.setPointerCapture(event.pointerId);
+                                dragStateRef.current.active = true;
+                                dragStateRef.current.action = "resize";
+                                dragStateRef.current.corner = corner;
+                                dragStateRef.current.anchor = {
+                                  x: isLeft ? bounds.left : bounds.right,
+                                  y: isTop ? bounds.top : bounds.bottom,
+                                };
+                                // Preserve the grab offset so a click alone never changes size.
+                                const board = event.currentTarget.closest(
+                                  "[data-board-surface]",
+                                )!;
+                                const rect = board.getBoundingClientRect();
+                                dragStateRef.current.anchor = {
+                                  x:
+                                    Math.floor(
+                                      (event.clientX - rect.left - 1) /
+                                        cellSize,
+                                    ) - dragStateRef.current.anchor.x,
+                                  y:
+                                    Math.floor(
+                                      (event.clientY - rect.top - 1) / cellSize,
+                                    ) - dragStateRef.current.anchor.y,
+                                };
+                                dragStateRef.current.moveSource = {
+                                  selection,
+                                  history: model.history,
+                                };
+                              }}
+                            />
+                          );
+                        })}
                       {placement ? (
                         <span
                           className={
@@ -1066,7 +1204,9 @@ export default function Home() {
 
       <aside className="grid content-start gap-4 overflow-auto bg-[color-mix(in_oklab,#f7f2e7_92%,white)] p-4 border-l border-[#cbd5c1] [@media(max-width:1280px)]:col-span-full [@media(max-width:1280px)]:border-t [@media(max-width:1280px)]:border-l-0">
         <section className="grid gap-2.5 rounded-xl border border-[#cbd5c1] bg-white p-3">
-          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">Editor</h2>
+          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">
+            Editor
+          </h2>
           <label className="grid gap-1.5 text-[0.78rem] text-[#57534e]">
             Active Name
             <input
@@ -1080,34 +1220,40 @@ export default function Home() {
 
           <div className="grid grid-cols-3 gap-2">
             <button
-              className={`cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60 ${model.toolMode === "paint" ? "outline-2 outline-[#0f172a] outline-offset-1" : ""}`}
+              title="Paint (P)"
+              aria-keyshortcuts="p"
+              className={`cursor-pointer rounded-lg text-sm border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60 ${model.toolMode === "paint" ? "outline-2 outline-[#0f172a] outline-offset-1" : ""}`}
               onClick={() => {
                 endDrag();
                 setSelection(null);
                 setModel((current) => ({ ...current, toolMode: "paint" }));
               }}
             >
-              Paint
+              Paint (P)
             </button>
             <button
-              className={`cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60 ${model.toolMode === "erase" ? "outline-2 outline-[#0f172a] outline-offset-1" : ""}`}
+              title="Delete (D)"
+              aria-keyshortcuts="d"
+              className={`cursor-pointer rounded-lg text-sm  border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60 ${model.toolMode === "erase" ? "outline-2 outline-[#0f172a] outline-offset-1" : ""}`}
               onClick={() => {
                 endDrag();
                 setSelection(null);
                 setModel((current) => ({ ...current, toolMode: "erase" }));
               }}
             >
-              Erase
+              Delete (D)
             </button>
             <button
-              className={`cursor-pointer rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60 ${model.toolMode === "select" ? "outline-2 outline-[#0f172a] outline-offset-1" : ""}`}
+              title="Select (S)"
+              aria-keyshortcuts="s"
+              className={`cursor-pointer text-sm rounded-lg border border-transparent bg-[#0f766e] px-3 py-2 text-white transition-[background-color] duration-120 ease-[ease] hover:bg-[#115e59] disabled:cursor-not-allowed disabled:opacity-60 ${model.toolMode === "select" ? "outline-2 outline-[#0f172a] outline-offset-1" : ""}`}
               onClick={() => {
                 endDrag();
                 setSelection(null);
                 setModel((current) => ({ ...current, toolMode: "select" }));
               }}
             >
-              Select
+              Select (S)
             </button>
           </div>
 
@@ -1165,7 +1311,9 @@ export default function Home() {
         </section>
 
         <section className="grid gap-2.5 rounded-xl border border-[#cbd5c1] bg-white p-3">
-          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">Bill of Materials</h2>
+          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">
+            Bill of Materials
+          </h2>
           <div className="grid gap-1">
             <div className="grid grid-cols-[1fr_1fr_auto] items-center gap-2 border-b border-[#cbd5c1] pb-1 text-[0.8rem] font-bold">
               <span>Part</span>
@@ -1179,24 +1327,36 @@ export default function Home() {
               >
                 <span>{partTypeToDisplayName(item.partType)}</span>
                 <span className="inline-flex items-center gap-1.5">
-                  <i className="inline-block h-3 w-3 rounded-full border border-[rgba(0,0,0,0.3)]" style={{ backgroundColor: item.colorHex }} />
+                  <i
+                    className="inline-block h-3 w-3 rounded-full border border-[rgba(0,0,0,0.3)]"
+                    style={{ backgroundColor: item.colorHex }}
+                  />
                   {item.colorId}
                 </span>
                 <span>{item.count}</span>
               </div>
             ))}
             {bom.length === 0 ? (
-              <p className="text-[0.82rem] text-[#57534e]">No parts placed yet.</p>
+              <p className="text-[0.82rem] text-[#57534e]">
+                No parts placed yet.
+              </p>
             ) : null}
           </div>
         </section>
 
         <section className="grid gap-2.5 rounded-xl border border-[#cbd5c1] bg-white p-3">
-          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">Instructions</h2>
-          <p className="text-[0.82rem] text-[#57534e]">Row-by-row build steps.</p>
+          <h2 className="text-[0.94rem] tracking-[0.08em] text-[#57534e] uppercase">
+            Instructions
+          </h2>
+          <p className="text-[0.82rem] text-[#57534e]">
+            Row-by-row build steps.
+          </p>
           <div className="grid max-h-105 gap-2 overflow-auto">
             {instructions.slice(0, 100).map((step) => (
-              <article key={step.stepNumber} className="rounded-lg border border-[#cbd5c1] bg-white p-2">
+              <article
+                key={step.stepNumber}
+                className="rounded-lg border border-[#cbd5c1] bg-white p-2"
+              >
                 <h3 className="text-[0.88rem]">
                   Step {step.stepNumber}: {step.title}
                 </h3>
@@ -1209,7 +1369,9 @@ export default function Home() {
               </p>
             ) : null}
             {instructions.length === 0 ? (
-              <p className="text-[0.82rem] text-[#57534e]">No instructions generated yet.</p>
+              <p className="text-[0.82rem] text-[#57534e]">
+                No instructions generated yet.
+              </p>
             ) : null}
           </div>
         </section>
@@ -1395,17 +1557,29 @@ function resizeSelection(
   preserveAspectRatio = false,
 ) {
   const bounds = getSelectionBounds(selection);
-  let left = corner.endsWith("left") ? Math.max(0, Math.min(bounds.right, x)) : bounds.left;
-  let top = corner.startsWith("top") ? Math.max(0, Math.min(bounds.bottom, y)) : bounds.top;
-  let right = corner.endsWith("right") ? Math.max(bounds.left, Math.min(history.project.width - 1, x)) : bounds.right;
-  let bottom = corner.startsWith("bottom") ? Math.max(bounds.top, Math.min(history.project.height - 1, y)) : bounds.bottom;
+  let left = corner.endsWith("left")
+    ? Math.max(0, Math.min(bounds.right, x))
+    : bounds.left;
+  let top = corner.startsWith("top")
+    ? Math.max(0, Math.min(bounds.bottom, y))
+    : bounds.top;
+  let right = corner.endsWith("right")
+    ? Math.max(bounds.left, Math.min(history.project.width - 1, x))
+    : bounds.right;
+  let bottom = corner.startsWith("bottom")
+    ? Math.max(bounds.top, Math.min(history.project.height - 1, y))
+    : bounds.bottom;
   const sourceWidth = bounds.right - bounds.left + 1;
   const sourceHeight = bounds.bottom - bounds.top + 1;
   if (preserveAspectRatio) {
     const isLeft = corner.endsWith("left");
     const isTop = corner.startsWith("top");
-    const maxWidth = isLeft ? bounds.right + 1 : history.project.width - bounds.left;
-    const maxHeight = isTop ? bounds.bottom + 1 : history.project.height - bounds.top;
+    const maxWidth = isLeft
+      ? bounds.right + 1
+      : history.project.width - bounds.left;
+    const maxHeight = isTop
+      ? bounds.bottom + 1
+      : history.project.height - bounds.top;
     // Project the pointer onto the original diagonal, then clamp both axes together.
     const scale = Math.min(
       maxWidth / sourceWidth,
@@ -1424,7 +1598,13 @@ function resizeSelection(
     top = isTop ? bounds.bottom - scaledHeight + 1 : bounds.top;
     bottom = isTop ? bounds.bottom : bounds.top + scaledHeight - 1;
   }
-  if (left === bounds.left && top === bounds.top && right === bounds.right && bottom === bounds.bottom) return { history, selection };
+  if (
+    left === bounds.left &&
+    top === bounds.top &&
+    right === bounds.right &&
+    bottom === bounds.bottom
+  )
+    return { history, selection };
 
   const width = right - left + 1;
   const height = bottom - top + 1;
@@ -1437,8 +1617,18 @@ function resizeSelection(
   // Nearest-neighbor image scaling keeps the palette and part shapes intact.
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      const sourceX = bounds.left + Math.min(sourceWidth - 1, Math.floor((x + 0.5) * sourceWidth / width));
-      const sourceY = bounds.top + Math.min(sourceHeight - 1, Math.floor((y + 0.5) * sourceHeight / height));
+      const sourceX =
+        bounds.left +
+        Math.min(
+          sourceWidth - 1,
+          Math.floor(((x + 0.5) * sourceWidth) / width),
+        );
+      const sourceY =
+        bounds.top +
+        Math.min(
+          sourceHeight - 1,
+          Math.floor(((y + 0.5) * sourceHeight) / height),
+        );
       const targetX = left + x;
       const targetY = top + y;
       updates.set(cellKey(targetX, targetY), {
@@ -1449,7 +1639,11 @@ function resizeSelection(
     }
   }
   return {
-    history: applyUpdatesToHistory(history, [...updates.values()], "Resize Selection"),
+    history: applyUpdatesToHistory(
+      history,
+      [...updates.values()],
+      "Resize Selection",
+    ),
     selection: { anchor: { x: left, y: top }, focus: { x: right, y: bottom } },
   };
 }
