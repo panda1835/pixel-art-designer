@@ -86,7 +86,8 @@ export default function Home() {
 
   const dragStateRef = useRef({
     active: false,
-    action: "paint" as "paint" | "select",
+    action: "paint" as "paint" | "select" | "move",
+    moveSource: null as { selection: GridSelection; history: HistoryState } | null,
     anchor: null as { x: number; y: number } | null,
     touched: new Set<string>(),
   });
@@ -117,6 +118,24 @@ export default function Home() {
       const bounds = selection ? getSelectionBounds(selection) : null;
       const key = event.key.toLowerCase();
       const isShortcut = event.metaKey || event.ctrlKey;
+      const direction = {
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+        ArrowUp: [0, -1],
+        ArrowDown: [0, 1],
+      }[event.key];
+      if (direction && selection && !isShortcut && !event.altKey) {
+        event.preventDefault();
+        if (dragStateRef.current.active) return;
+        const moved = moveSelection(model.history, selection, direction[0], direction[1]);
+        setSelection(moved.selection);
+        setModel((current) => ({
+          ...current,
+          history: moved.history,
+          projects: upsertProject(current.projects, current.activeProjectId, moved.history.project),
+        }));
+        return;
+      }
       if (isShortcut && key === "z") {
         event.preventDefault();
         if (event.shiftKey) {
@@ -250,7 +269,7 @@ export default function Home() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [project, selection]);
+  }, [project, selection, model.history]);
 
   const occupiedStuds = useMemo(() => getOccupiedStudCount(project), [project]);
   const coverage = useMemo(() => getProjectCoverage(project), [project]);
@@ -337,6 +356,13 @@ export default function Home() {
   function startDrag(x: number, y: number) {
     dragStateRef.current.active = true;
     if (model.toolMode === "select") {
+      const bounds = selection ? getSelectionBounds(selection) : null;
+      if (selection && bounds && x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom) {
+        dragStateRef.current.action = "move";
+        dragStateRef.current.anchor = { x, y };
+        dragStateRef.current.moveSource = { selection, history: model.history };
+        return;
+      }
       dragStateRef.current.action = "select";
       dragStateRef.current.anchor = { x, y };
       setSelection({ anchor: { x, y }, focus: { x, y } });
@@ -353,6 +379,19 @@ export default function Home() {
     if (!dragStateRef.current.active) {
       return;
     }
+    if (dragStateRef.current.action === "move") {
+      const { anchor, moveSource } = dragStateRef.current;
+      if (anchor && moveSource) {
+        const moved = moveSelection(moveSource.history, moveSource.selection, x - anchor.x, y - anchor.y);
+        setSelection(moved.selection);
+        setModel((current) => ({
+          ...current,
+          history: moved.history,
+          projects: upsertProject(current.projects, current.activeProjectId, moved.history.project),
+        }));
+      }
+      return;
+    }
     if (dragStateRef.current.action === "select") {
       const anchor = dragStateRef.current.anchor;
       if (anchor) {
@@ -364,6 +403,7 @@ export default function Home() {
   }
 
   function endDrag() {
+    dragStateRef.current.moveSource = null;
     dragStateRef.current.active = false;
     dragStateRef.current.action = "paint";
     dragStateRef.current.anchor = null;
@@ -841,6 +881,7 @@ export default function Home() {
       <main
         className="editor-main"
         onPointerUp={endDrag}
+        onPointerCancel={endDrag}
         onPointerLeave={endDrag}
       >
         <div className="stats-strip">
@@ -849,6 +890,9 @@ export default function Home() {
             {project.width}x{project.height} studs
           </span>
           <span>{occupiedStuds} placed</span>
+          {model.toolMode === "select" ? (
+            <span>Drag to select; use arrow keys or drag inside the box to move.</span>
+          ) : null}
           <span>{(coverage * 100).toFixed(1)}% coverage</span>
           {selectedColor ? (
             <span className="selected-color-preview">
@@ -919,13 +963,18 @@ export default function Home() {
                 return (
                   <button
                     key={`${x}-${y}`}
-                    className={`stud-cell${isSelected ? ` in-selection ${selectionEdges}` : ""}`}
+                    className={`stud-cell${isSelected ? ` in-selection ${selectionEdges}${model.toolMode === "select" ? " movable" : ""}` : ""}`}
                     style={
                       placement
                         ? { backgroundColor: color?.hex ?? "#111827" }
                         : undefined
                     }
-                    onPointerDown={() => startDrag(x, y)}
+                    onPointerDown={(event) => {
+                      if (event.button !== 0) return;
+                      event.preventDefault();
+                      event.currentTarget.focus({ preventScroll: true });
+                      startDrag(x, y);
+                    }}
                     onPointerEnter={() => continueDrag(x, y)}
                     title={`(${x + 1}, ${y + 1})`}
                   >
@@ -1126,6 +1175,36 @@ function clampGridSize(value: number): number {
 
 function shouldShowAxisMarker(value: number): boolean {
   return value === 1 || value % 5 === 0;
+}
+
+function moveSelection(history: HistoryState, selection: GridSelection, dx: number, dy: number) {
+  const bounds = getSelectionBounds(selection);
+  dx = Math.max(-bounds.left, Math.min(dx, history.project.width - 1 - bounds.right));
+  dy = Math.max(-bounds.top, Math.min(dy, history.project.height - 1 - bounds.bottom));
+  if (dx === 0 && dy === 0) return { history, selection };
+
+  // Build final values once per cell so overlapping moves undo correctly.
+  const updates = new Map<string, CellUpdate>();
+  const placements: CellUpdate[] = [];
+  for (let y = bounds.top; y <= bounds.bottom; y++) {
+    for (let x = bounds.left; x <= bounds.right; x++) {
+      const part = history.project.cells[cellKey(x, y)];
+      if (part) {
+        updates.set(cellKey(x, y), { x, y, next: null });
+        placements.push({ x: x + dx, y: y + dy, next: part });
+      }
+    }
+  }
+  for (const placement of placements) {
+    updates.set(cellKey(placement.x, placement.y), placement);
+  }
+  return {
+    history: applyUpdatesToHistory(history, [...updates.values()], "Move Selection"),
+    selection: {
+      anchor: { x: selection.anchor.x + dx, y: selection.anchor.y + dy },
+      focus: { x: selection.focus.x + dx, y: selection.focus.y + dy },
+    },
+  };
 }
 
 function getSelectionBounds(selection: GridSelection): SelectionBounds {
