@@ -271,6 +271,22 @@ export default function Home() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [project, selection, model.history]);
 
+  useEffect(() => {
+    if (!selection) return;
+
+    function clearSelectionOutside(event: PointerEvent) {
+      if (event.button !== 0) return;
+      const target = event.target;
+      if (target instanceof Element && target.closest(".stud-cell.in-selection")) {
+        return;
+      }
+      setSelection(null);
+    }
+
+    document.addEventListener("pointerdown", clearSelectionOutside, true);
+    return () => document.removeEventListener("pointerdown", clearSelectionOutside, true);
+  }, [selection]);
+
   const occupiedStuds = useMemo(() => getOccupiedStudCount(project), [project]);
   const coverage = useMemo(() => getProjectCoverage(project), [project]);
   const bom = useMemo(() => generateBom(project), [project]);
@@ -365,7 +381,7 @@ export default function Home() {
       }
       dragStateRef.current.action = "select";
       dragStateRef.current.anchor = { x, y };
-      setSelection({ anchor: { x, y }, focus: { x, y } });
+      setSelection(selection ? null : { anchor: { x, y }, focus: { x, y } });
       return;
     }
 
@@ -779,25 +795,31 @@ export default function Home() {
           <div className="tool-row three-tools">
             <button
               className={model.toolMode === "paint" ? "selected" : ""}
-              onClick={() =>
-                setModel((current) => ({ ...current, toolMode: "paint" }))
-              }
+              onClick={() => {
+                endDrag();
+                setSelection(null);
+                setModel((current) => ({ ...current, toolMode: "paint" }));
+              }}
             >
               Paint
             </button>
             <button
               className={model.toolMode === "erase" ? "selected" : ""}
-              onClick={() =>
-                setModel((current) => ({ ...current, toolMode: "erase" }))
-              }
+              onClick={() => {
+                endDrag();
+                setSelection(null);
+                setModel((current) => ({ ...current, toolMode: "erase" }));
+              }}
             >
               Erase
             </button>
             <button
               className={model.toolMode === "select" ? "selected" : ""}
-              onClick={() =>
-                setModel((current) => ({ ...current, toolMode: "select" }))
-              }
+              onClick={() => {
+                endDrag();
+                setSelection(null);
+                setModel((current) => ({ ...current, toolMode: "select" }));
+              }}
             >
               Select
             </button>
