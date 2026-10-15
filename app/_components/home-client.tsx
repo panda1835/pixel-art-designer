@@ -715,8 +715,8 @@ export default function Home() {
           <h1>Pixel Art Designer</h1>
         </div>
         <p className="subtle">
-          Design 2D patterns with custom grid sizes and exportable build
-          outputs.
+          Create pixel art and brick mosaics with custom grids. Export PNG
+          images, parts lists, and building instructions.
         </p>
 
         <section>
