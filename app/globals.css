@@ -462,3 +462,14 @@ button.selected {
 .stud-cell.movable {
   cursor: move;
 }
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-brand img {
+  flex-shrink: 0;
+  border-radius: 4px;
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   useEffect,
   useMemo,
@@ -87,7 +88,10 @@ export default function Home() {
   const dragStateRef = useRef({
     active: false,
     action: "paint" as "paint" | "select" | "move",
-    moveSource: null as { selection: GridSelection; history: HistoryState } | null,
+    moveSource: null as {
+      selection: GridSelection;
+      history: HistoryState;
+    } | null,
     anchor: null as { x: number; y: number } | null,
     touched: new Set<string>(),
   });
@@ -127,12 +131,21 @@ export default function Home() {
       if (direction && selection && !isShortcut && !event.altKey) {
         event.preventDefault();
         if (dragStateRef.current.active) return;
-        const moved = moveSelection(model.history, selection, direction[0], direction[1]);
+        const moved = moveSelection(
+          model.history,
+          selection,
+          direction[0],
+          direction[1],
+        );
         setSelection(moved.selection);
         setModel((current) => ({
           ...current,
           history: moved.history,
-          projects: upsertProject(current.projects, current.activeProjectId, moved.history.project),
+          projects: upsertProject(
+            current.projects,
+            current.activeProjectId,
+            moved.history.project,
+          ),
         }));
         return;
       }
@@ -277,14 +290,18 @@ export default function Home() {
     function clearSelectionOutside(event: PointerEvent) {
       if (event.button !== 0) return;
       const target = event.target;
-      if (target instanceof Element && target.closest(".stud-cell.in-selection")) {
+      if (
+        target instanceof Element &&
+        target.closest(".stud-cell.in-selection")
+      ) {
         return;
       }
       setSelection(null);
     }
 
     document.addEventListener("pointerdown", clearSelectionOutside, true);
-    return () => document.removeEventListener("pointerdown", clearSelectionOutside, true);
+    return () =>
+      document.removeEventListener("pointerdown", clearSelectionOutside, true);
   }, [selection]);
 
   const occupiedStuds = useMemo(() => getOccupiedStudCount(project), [project]);
@@ -373,7 +390,14 @@ export default function Home() {
     dragStateRef.current.active = true;
     if (model.toolMode === "select") {
       const bounds = selection ? getSelectionBounds(selection) : null;
-      if (selection && bounds && x >= bounds.left && x <= bounds.right && y >= bounds.top && y <= bounds.bottom) {
+      if (
+        selection &&
+        bounds &&
+        x >= bounds.left &&
+        x <= bounds.right &&
+        y >= bounds.top &&
+        y <= bounds.bottom
+      ) {
         dragStateRef.current.action = "move";
         dragStateRef.current.anchor = { x, y };
         dragStateRef.current.moveSource = { selection, history: model.history };
@@ -398,12 +422,21 @@ export default function Home() {
     if (dragStateRef.current.action === "move") {
       const { anchor, moveSource } = dragStateRef.current;
       if (anchor && moveSource) {
-        const moved = moveSelection(moveSource.history, moveSource.selection, x - anchor.x, y - anchor.y);
+        const moved = moveSelection(
+          moveSource.history,
+          moveSource.selection,
+          x - anchor.x,
+          y - anchor.y,
+        );
         setSelection(moved.selection);
         setModel((current) => ({
           ...current,
           history: moved.history,
-          projects: upsertProject(current.projects, current.activeProjectId, moved.history.project),
+          projects: upsertProject(
+            current.projects,
+            current.activeProjectId,
+            moved.history.project,
+          ),
         }));
       }
       return;
@@ -671,7 +704,16 @@ export default function Home() {
   return (
     <div className="app-shell">
       <aside className="panel left-panel">
-        <h1>Lego Art Designer</h1>
+        <div className="app-brand">
+          <Image
+            src="/logo.svg"
+            alt="Brick heart logo"
+            width={56}
+            height={56}
+            priority
+          />
+          <h1>Pixel Art Designer</h1>
+        </div>
         <p className="subtle">
           Design 2D patterns with custom grid sizes and exportable build
           outputs.
@@ -913,7 +955,9 @@ export default function Home() {
           </span>
           <span>{occupiedStuds} placed</span>
           {model.toolMode === "select" ? (
-            <span>Drag to select; use arrow keys or drag inside the box to move.</span>
+            <span>
+              Drag to select; use arrow keys or drag inside the box to move.
+            </span>
           ) : null}
           <span>{(coverage * 100).toFixed(1)}% coverage</span>
           {selectedColor ? (
@@ -1199,10 +1243,21 @@ function shouldShowAxisMarker(value: number): boolean {
   return value === 1 || value % 5 === 0;
 }
 
-function moveSelection(history: HistoryState, selection: GridSelection, dx: number, dy: number) {
+function moveSelection(
+  history: HistoryState,
+  selection: GridSelection,
+  dx: number,
+  dy: number,
+) {
   const bounds = getSelectionBounds(selection);
-  dx = Math.max(-bounds.left, Math.min(dx, history.project.width - 1 - bounds.right));
-  dy = Math.max(-bounds.top, Math.min(dy, history.project.height - 1 - bounds.bottom));
+  dx = Math.max(
+    -bounds.left,
+    Math.min(dx, history.project.width - 1 - bounds.right),
+  );
+  dy = Math.max(
+    -bounds.top,
+    Math.min(dy, history.project.height - 1 - bounds.bottom),
+  );
   if (dx === 0 && dy === 0) return { history, selection };
 
   // Build final values once per cell so overlapping moves undo correctly.
@@ -1221,7 +1276,11 @@ function moveSelection(history: HistoryState, selection: GridSelection, dx: numb
     updates.set(cellKey(placement.x, placement.y), placement);
   }
   return {
-    history: applyUpdatesToHistory(history, [...updates.values()], "Move Selection"),
+    history: applyUpdatesToHistory(
+      history,
+      [...updates.values()],
+      "Move Selection",
+    ),
     selection: {
       anchor: { x: selection.anchor.x + dx, y: selection.anchor.y + dy },
       focus: { x: selection.focus.x + dx, y: selection.focus.y + dy },

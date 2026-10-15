@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lego Art Designer",
-  description: "Design 2D Lego-style art patterns and export PNG, BOM, and instructions.",
+  title: "Pixel Art Designer",
+  description:
+    "Design 2D Lego-style art patterns and export PNG, BOM, and instructions.",
 };
 
 export default function RootLayout({
