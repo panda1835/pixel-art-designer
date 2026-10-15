@@ -1,16 +1,47 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { applyUpdatesToHistory, createHistoryState, HistoryState, redoHistory, undoHistory } from "@/lib/lego/history";
-import { generateBom, bomToCsv, getOccupiedStudCount, getProjectCoverage } from "@/lib/lego/bom";
-import { generateRowByRowInstructions, instructionsToHtml } from "@/lib/lego/instructions";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import {
+  applyUpdatesToHistory,
+  createHistoryState,
+  HistoryState,
+  redoHistory,
+  undoHistory,
+} from "@/lib/lego/history";
+import {
+  generateBom,
+  bomToCsv,
+  getOccupiedStudCount,
+  getProjectCoverage,
+} from "@/lib/lego/bom";
+import {
+  generateRowByRowInstructions,
+  instructionsToHtml,
+} from "@/lib/lego/instructions";
 import { DEFAULT_PALETTE, partTypeToDisplayName } from "@/lib/lego/parts";
 import { createProject } from "@/lib/lego/project";
 import { exportProjectToPng } from "@/lib/lego/exporters";
-import { loadProjectsFromStorage, saveProjectsToStorage } from "@/lib/lego/storage";
-import { CellUpdate, LegoProject, PartType, PlacedPart } from "@/lib/lego/types";
+import {
+  loadProjectsFromStorage,
+  saveProjectsToStorage,
+} from "@/lib/lego/storage";
+import {
+  CellUpdate,
+  LegoProject,
+  PartType,
+  PlacedPart,
+} from "@/lib/lego/types";
 import { cellKey } from "@/lib/lego/board";
-import { exportProjectToPortableText, importProjectFromPortableText } from "@/lib/lego/portable";
+import {
+  exportProjectToPortableText,
+  importProjectFromPortableText,
+} from "@/lib/lego/portable";
 
 const MIN_GRID_SIZE = 1;
 const MAX_GRID_SIZE = 128;
@@ -21,13 +52,30 @@ interface EditorModel {
   history: HistoryState;
   selectedPart: PartType;
   selectedColorId: string;
-  toolMode: "paint" | "erase";
+  toolMode: "paint" | "erase" | "select";
   zoom: number;
 }
 
+interface GridSelection {
+  anchor: { x: number; y: number };
+  focus: { x: number; y: number };
+}
+
+interface SelectionBounds {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
 export default function Home() {
-  const isHydrated = useSyncExternalStore(subscribeNoop, getClientSnapshot, getServerSnapshot);
+  const isHydrated = useSyncExternalStore(
+    subscribeNoop,
+    getClientSnapshot,
+    getServerSnapshot,
+  );
   const [model, setModel] = useState<EditorModel>(buildInitialModel);
+  const [selection, setSelection] = useState<GridSelection | null>(null);
 
   const [newProjectName, setNewProjectName] = useState("New Design");
   const [newWidth, setNewWidth] = useState(32);
@@ -36,42 +84,204 @@ export default function Home() {
   const [newColorName, setNewColorName] = useState("Custom");
   const [newColorHex, setNewColorHex] = useState("#3b82f6");
 
-  const dragStateRef = useRef({ active: false, touched: new Set<string>() });
+  const dragStateRef = useRef({
+    active: false,
+    action: "paint" as "paint" | "select",
+    anchor: null as { x: number; y: number } | null,
+    touched: new Set<string>(),
+  });
+  const clipboardRef = useRef<Array<Array<PlacedPart | null>>>([]);
   const importFileRef = useRef<HTMLInputElement | null>(null);
 
   const project = model.history.project;
   const paletteById = useMemo(
     () => new Map(project.palette.map((color) => [color.id, color])),
-    [project.palette]
+    [project.palette],
   );
 
   useEffect(() => {
     saveProjectsToStorage(model.projects);
   }, [model.projects]);
 
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          ["INPUT", "SELECT", "TEXTAREA"].includes(target.tagName))
+      ) {
+        return;
+      }
+
+      const bounds = selection ? getSelectionBounds(selection) : null;
+      const key = event.key.toLowerCase();
+      const isShortcut = event.metaKey || event.ctrlKey;
+      if (isShortcut && key === "z") {
+        event.preventDefault();
+        if (event.shiftKey) {
+          handleRedo();
+        } else {
+          handleUndo();
+        }
+        return;
+      }
+      if (event.ctrlKey && key === "y") {
+        event.preventDefault();
+        handleRedo();
+        return;
+      }
+
+      if (isShortcut && ["c", "x", "v"].includes(key) && bounds) {
+        event.preventDefault();
+
+        if (key === "v") {
+          const clipboard = clipboardRef.current;
+          if (clipboard.length === 0) {
+            return;
+          }
+          const updates = clipboard.flatMap((row, rowOffset) =>
+            row.map((next, columnOffset) => ({
+              x: bounds.left + columnOffset,
+              y: bounds.top + rowOffset,
+              next,
+            })),
+          );
+          setModel((current) => {
+            const history = applyUpdatesToHistory(
+              current.history,
+              updates,
+              "Paste",
+            );
+            return history === current.history
+              ? current
+              : {
+                  ...current,
+                  history,
+                  projects: upsertProject(
+                    current.projects,
+                    current.activeProjectId,
+                    history.project,
+                  ),
+                };
+          });
+          return;
+        }
+
+        clipboardRef.current = Array.from(
+          { length: bounds.bottom - bounds.top + 1 },
+          (_, rowOffset) =>
+            Array.from(
+              { length: bounds.right - bounds.left + 1 },
+              (_, columnOffset) => {
+                const placement =
+                  project.cells[
+                    cellKey(bounds.left + columnOffset, bounds.top + rowOffset)
+                  ];
+                return placement ? { ...placement } : null;
+              },
+            ),
+        );
+        if (key === "x") {
+          const updates: CellUpdate[] = clipboardRef.current.flatMap(
+            (row, rowOffset) =>
+              row.map((_, columnOffset) => ({
+                x: bounds.left + columnOffset,
+                y: bounds.top + rowOffset,
+                next: null,
+              })),
+          );
+          setModel((current) => {
+            const history = applyUpdatesToHistory(
+              current.history,
+              updates,
+              "Cut",
+            );
+            return history === current.history
+              ? current
+              : {
+                  ...current,
+                  history,
+                  projects: upsertProject(
+                    current.projects,
+                    current.activeProjectId,
+                    history.project,
+                  ),
+                };
+          });
+        }
+        return;
+      }
+
+      if ((event.key === "Delete" || event.key === "Backspace") && bounds) {
+        event.preventDefault();
+        const updates: CellUpdate[] = Array.from(
+          { length: bounds.bottom - bounds.top + 1 },
+          (_, rowOffset) =>
+            Array.from(
+              { length: bounds.right - bounds.left + 1 },
+              (_, columnOffset) => ({
+                x: bounds.left + columnOffset,
+                y: bounds.top + rowOffset,
+                next: null,
+              }),
+            ),
+        ).flat();
+        setModel((current) => {
+          const history = applyUpdatesToHistory(
+            current.history,
+            updates,
+            "Clear Selection",
+          );
+          return history === current.history
+            ? current
+            : {
+                ...current,
+                history,
+                projects: upsertProject(
+                  current.projects,
+                  current.activeProjectId,
+                  history.project,
+                ),
+              };
+        });
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [project, selection]);
+
   const occupiedStuds = useMemo(() => getOccupiedStudCount(project), [project]);
   const coverage = useMemo(() => getProjectCoverage(project), [project]);
   const bom = useMemo(() => generateBom(project), [project]);
-  const instructions = useMemo(() => generateRowByRowInstructions(project), [project]);
+  const instructions = useMemo(
+    () => generateRowByRowInstructions(project),
+    [project],
+  );
 
   const cellSize = Math.max(10, model.zoom);
   const coordinates = useMemo(() => {
-    return Array.from({ length: project.width * project.height }, (_, index) => {
-      const x = index % project.width;
-      const y = Math.floor(index / project.width);
-      return { x, y };
-    });
+    return Array.from(
+      { length: project.width * project.height },
+      (_, index) => {
+        const x = index % project.width;
+        const y = Math.floor(index / project.width);
+        return { x, y };
+      },
+    );
   }, [project.width, project.height]);
   const columnIndices = useMemo(
     () => Array.from({ length: project.width }, (_, index) => index + 1),
-    [project.width]
+    [project.width],
   );
   const rowIndices = useMemo(
     () => Array.from({ length: project.height }, (_, index) => index + 1),
-    [project.height]
+    [project.height],
   );
 
-  const selectedColor = paletteById.get(model.selectedColorId) ?? project.palette[0];
+  const selectedColor =
+    paletteById.get(model.selectedColorId) ?? project.palette[0];
 
   if (!isHydrated) {
     return <div className="app-shell" />;
@@ -105,7 +315,7 @@ export default function Home() {
       const nextHistory = applyUpdatesToHistory(
         current.history,
         updates,
-        current.toolMode === "erase" ? "Erase" : "Paint"
+        current.toolMode === "erase" ? "Erase" : "Paint",
       );
 
       if (nextHistory === current.history) {
@@ -115,13 +325,26 @@ export default function Home() {
       return {
         ...current,
         history: nextHistory,
-        projects: upsertProject(current.projects, current.activeProjectId, nextHistory.project),
+        projects: upsertProject(
+          current.projects,
+          current.activeProjectId,
+          nextHistory.project,
+        ),
       };
     });
   }
 
   function startDrag(x: number, y: number) {
     dragStateRef.current.active = true;
+    if (model.toolMode === "select") {
+      dragStateRef.current.action = "select";
+      dragStateRef.current.anchor = { x, y };
+      setSelection({ anchor: { x, y }, focus: { x, y } });
+      return;
+    }
+
+    dragStateRef.current.action = "paint";
+    dragStateRef.current.anchor = null;
     dragStateRef.current.touched = new Set<string>();
     applySingleCell(x, y);
   }
@@ -130,24 +353,36 @@ export default function Home() {
     if (!dragStateRef.current.active) {
       return;
     }
+    if (dragStateRef.current.action === "select") {
+      const anchor = dragStateRef.current.anchor;
+      if (anchor) {
+        setSelection({ anchor, focus: { x, y } });
+      }
+      return;
+    }
     applySingleCell(x, y);
   }
 
   function endDrag() {
     dragStateRef.current.active = false;
+    dragStateRef.current.action = "paint";
+    dragStateRef.current.anchor = null;
     dragStateRef.current.touched = new Set<string>();
   }
 
   function handleSelectProject(projectId: string) {
+    setSelection(null);
     setModel((current) => {
       const target = current.projects.find((item) => item.id === projectId);
       if (!target) {
         return current;
       }
 
-      const selectedColorId = target.palette.some((color) => color.id === current.selectedColorId)
+      const selectedColorId = target.palette.some(
+        (color) => color.id === current.selectedColorId,
+      )
         ? current.selectedColorId
-        : target.palette[0]?.id ?? DEFAULT_PALETTE[0].id;
+        : (target.palette[0]?.id ?? DEFAULT_PALETTE[0].id);
 
       return {
         ...current,
@@ -176,7 +411,9 @@ export default function Home() {
 
   function handleDeleteActiveProject() {
     setModel((current) => {
-      const remaining = current.projects.filter((item) => item.id !== current.activeProjectId);
+      const remaining = current.projects.filter(
+        (item) => item.id !== current.activeProjectId,
+      );
       if (remaining.length === 0) {
         const fallback = createProject(24, 24, "My Lego Art");
         return {
@@ -213,7 +450,11 @@ export default function Home() {
           ...current.history,
           project: nextProject,
         },
-        projects: upsertProject(current.projects, current.activeProjectId, nextProject),
+        projects: upsertProject(
+          current.projects,
+          current.activeProjectId,
+          nextProject,
+        ),
       };
     });
   }
@@ -241,7 +482,11 @@ export default function Home() {
           ...current.history,
           project: nextProject,
         },
-        projects: upsertProject(current.projects, current.activeProjectId, nextProject),
+        projects: upsertProject(
+          current.projects,
+          current.activeProjectId,
+          nextProject,
+        ),
       };
     });
   }
@@ -255,7 +500,11 @@ export default function Home() {
       return {
         ...current,
         history: nextHistory,
-        projects: upsertProject(current.projects, current.activeProjectId, nextHistory.project),
+        projects: upsertProject(
+          current.projects,
+          current.activeProjectId,
+          nextHistory.project,
+        ),
       };
     });
   }
@@ -269,7 +518,11 @@ export default function Home() {
       return {
         ...current,
         history: nextHistory,
-        projects: upsertProject(current.projects, current.activeProjectId, nextHistory.project),
+        projects: upsertProject(
+          current.projects,
+          current.activeProjectId,
+          nextHistory.project,
+        ),
       };
     });
   }
@@ -285,32 +538,46 @@ export default function Home() {
 
   function handleExportBomCsv() {
     const csv = bomToCsv(bom);
-    downloadTextFile(`${slugify(project.name)}-bom.csv`, csv, "text/csv;charset=utf-8");
+    downloadTextFile(
+      `${slugify(project.name)}-bom.csv`,
+      csv,
+      "text/csv;charset=utf-8",
+    );
   }
 
   function handleExportInstructionsJson() {
     downloadTextFile(
       `${slugify(project.name)}-instructions.json`,
       JSON.stringify(instructions, null, 2),
-      "application/json;charset=utf-8"
+      "application/json;charset=utf-8",
     );
   }
 
   function handleExportInstructionsHtml() {
     const html = instructionsToHtml(project, instructions);
-    downloadTextFile(`${slugify(project.name)}-instructions.html`, html, "text/html;charset=utf-8");
+    downloadTextFile(
+      `${slugify(project.name)}-instructions.html`,
+      html,
+      "text/html;charset=utf-8",
+    );
   }
 
   function handleExportProjectTxt() {
     const content = exportProjectToPortableText(project);
-    downloadTextFile(`${slugify(project.name)}.txt`, content, "text/plain;charset=utf-8");
+    downloadTextFile(
+      `${slugify(project.name)}.txt`,
+      content,
+      "text/plain;charset=utf-8",
+    );
   }
 
   function handleImportFilePick() {
     importFileRef.current?.click();
   }
 
-  async function handleImportProjectTxt(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImportProjectTxt(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
     const file = event.target.files?.[0];
     if (!file) {
       return;
@@ -321,17 +588,24 @@ export default function Home() {
       const imported = importProjectFromPortableText(text);
 
       setModel((current) => {
-        const projectToLoad = resolveImportedProject(imported, current.projects);
+        const projectToLoad = resolveImportedProject(
+          imported,
+          current.projects,
+        );
         return {
           ...current,
           projects: [projectToLoad, ...current.projects],
           activeProjectId: projectToLoad.id,
           history: createHistoryState(projectToLoad),
-          selectedColorId: projectToLoad.palette[0]?.id ?? DEFAULT_PALETTE[0].id,
+          selectedColorId:
+            projectToLoad.palette[0]?.id ?? DEFAULT_PALETTE[0].id,
         };
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Could not import project file.";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Could not import project file.";
       window.alert(message);
     } finally {
       event.target.value = "";
@@ -342,7 +616,10 @@ export default function Home() {
     <div className="app-shell">
       <aside className="panel left-panel">
         <h1>Lego Art Designer</h1>
-        <p className="subtle">Design 2D patterns with custom grid sizes and exportable build outputs.</p>
+        <p className="subtle">
+          Design 2D patterns with custom grid sizes and exportable build
+          outputs.
+        </p>
 
         <section>
           <h2>Projects</h2>
@@ -384,7 +661,11 @@ export default function Home() {
             {model.projects.map((item) => (
               <button
                 key={item.id}
-                className={item.id === model.activeProjectId ? "project-item active" : "project-item"}
+                className={
+                  item.id === model.activeProjectId
+                    ? "project-item active"
+                    : "project-item"
+                }
                 onClick={() => handleSelectProject(item.id)}
               >
                 <span>{item.name}</span>
@@ -405,8 +686,17 @@ export default function Home() {
             {project.palette.map((color) => (
               <button
                 key={color.id}
-                className={model.selectedColorId === color.id ? "color-chip selected" : "color-chip"}
-                onClick={() => setModel((current) => ({ ...current, selectedColorId: color.id }))}
+                className={
+                  model.selectedColorId === color.id
+                    ? "color-chip selected"
+                    : "color-chip"
+                }
+                onClick={() =>
+                  setModel((current) => ({
+                    ...current,
+                    selectedColorId: color.id,
+                  }))
+                }
                 title={`${color.name} (${color.hex})`}
               >
                 <span style={{ backgroundColor: color.hex }} />
@@ -418,11 +708,17 @@ export default function Home() {
           <div className="stacked-form">
             <label>
               Color Name
-              <input value={newColorName} onChange={(event) => setNewColorName(event.target.value)} />
+              <input
+                value={newColorName}
+                onChange={(event) => setNewColorName(event.target.value)}
+              />
             </label>
             <label>
               Hex
-              <input value={newColorHex} onChange={(event) => setNewColorHex(event.target.value)} />
+              <input
+                value={newColorHex}
+                onChange={(event) => setNewColorHex(event.target.value)}
+              />
             </label>
             <button onClick={handleAddColor}>Add Color</button>
           </div>
@@ -432,21 +728,38 @@ export default function Home() {
           <h2>Editor</h2>
           <label>
             Active Name
-            <input value={project.name} onChange={(event) => handleRenameActiveProject(event.target.value)} />
+            <input
+              value={project.name}
+              onChange={(event) =>
+                handleRenameActiveProject(event.target.value)
+              }
+            />
           </label>
 
-          <div className="tool-row">
+          <div className="tool-row three-tools">
             <button
               className={model.toolMode === "paint" ? "selected" : ""}
-              onClick={() => setModel((current) => ({ ...current, toolMode: "paint" }))}
+              onClick={() =>
+                setModel((current) => ({ ...current, toolMode: "paint" }))
+              }
             >
               Paint
             </button>
             <button
               className={model.toolMode === "erase" ? "selected" : ""}
-              onClick={() => setModel((current) => ({ ...current, toolMode: "erase" }))}
+              onClick={() =>
+                setModel((current) => ({ ...current, toolMode: "erase" }))
+              }
             >
               Erase
+            </button>
+            <button
+              className={model.toolMode === "select" ? "selected" : ""}
+              onClick={() =>
+                setModel((current) => ({ ...current, toolMode: "select" }))
+              }
+            >
+              Select
             </button>
           </div>
 
@@ -455,7 +768,10 @@ export default function Home() {
             <select
               value={model.selectedPart}
               onChange={(event) =>
-                setModel((current) => ({ ...current, selectedPart: event.target.value as PartType }))
+                setModel((current) => ({
+                  ...current,
+                  selectedPart: event.target.value as PartType,
+                }))
               }
             >
               <option value="plate_1x1">1x1 Plate</option>
@@ -472,16 +788,25 @@ export default function Home() {
               max={42}
               value={model.zoom}
               onChange={(event) =>
-                setModel((current) => ({ ...current, zoom: Number(event.target.value) }))
+                setModel((current) => ({
+                  ...current,
+                  zoom: Number(event.target.value),
+                }))
               }
             />
           </label>
 
           <div className="tool-row">
-            <button disabled={model.history.past.length === 0} onClick={handleUndo}>
+            <button
+              disabled={model.history.past.length === 0}
+              onClick={handleUndo}
+            >
               Undo
             </button>
-            <button disabled={model.history.future.length === 0} onClick={handleRedo}>
+            <button
+              disabled={model.history.future.length === 0}
+              onClick={handleRedo}
+            >
               Redo
             </button>
           </div>
@@ -492,9 +817,15 @@ export default function Home() {
           <div className="stacked-form">
             <button onClick={handleExportPng}>Export PNG</button>
             <button onClick={handleExportBomCsv}>Export BOM (CSV)</button>
-            <button onClick={handleExportInstructionsJson}>Export Instructions (JSON)</button>
-            <button onClick={handleExportInstructionsHtml}>Export Instructions (HTML)</button>
-            <button onClick={handleExportProjectTxt}>Export Project (TXT)</button>
+            <button onClick={handleExportInstructionsJson}>
+              Export Instructions (JSON)
+            </button>
+            <button onClick={handleExportInstructionsHtml}>
+              Export Instructions (HTML)
+            </button>
+            <button onClick={handleExportProjectTxt}>
+              Export Project (TXT)
+            </button>
             <button onClick={handleImportFilePick}>Import Project (TXT)</button>
             <input
               ref={importFileRef}
@@ -507,7 +838,11 @@ export default function Home() {
         </section>
       </aside>
 
-      <main className="editor-main" onPointerUp={endDrag} onPointerLeave={endDrag}>
+      <main
+        className="editor-main"
+        onPointerUp={endDrag}
+        onPointerLeave={endDrag}
+      >
         <div className="stats-strip">
           <strong>{project.name}</strong>
           <span>
@@ -528,7 +863,9 @@ export default function Home() {
             <div className="board-corner" />
             <div
               className="board-top-axis"
-              style={{ gridTemplateColumns: `repeat(${project.width}, ${cellSize}px)` }}
+              style={{
+                gridTemplateColumns: `repeat(${project.width}, ${cellSize}px)`,
+              }}
             >
               {columnIndices.map((column) => (
                 <span key={`col-${column}`} className="axis-label">
@@ -538,7 +875,9 @@ export default function Home() {
             </div>
             <div
               className="board-left-axis"
-              style={{ gridTemplateRows: `repeat(${project.height}, ${cellSize}px)` }}
+              style={{
+                gridTemplateRows: `repeat(${project.height}, ${cellSize}px)`,
+              }}
             >
               {rowIndices.map((row) => (
                 <span key={`row-${row}`} className="axis-label">
@@ -555,13 +894,37 @@ export default function Home() {
             >
               {coordinates.map(({ x, y }) => {
                 const placement = project.cells[cellKey(x, y)] ?? null;
-                const color = placement ? paletteById.get(placement.colorId) : null;
+                const color = placement
+                  ? paletteById.get(placement.colorId)
+                  : null;
+                const bounds = selection ? getSelectionBounds(selection) : null;
+                const isSelected =
+                  bounds !== null &&
+                  x >= bounds.left &&
+                  x <= bounds.right &&
+                  y >= bounds.top &&
+                  y <= bounds.bottom;
+                const selectionEdges =
+                  isSelected && bounds
+                    ? [
+                        y === bounds.top && "selection-top",
+                        x === bounds.right && "selection-right",
+                        y === bounds.bottom && "selection-bottom",
+                        x === bounds.left && "selection-left",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")
+                    : "";
 
                 return (
                   <button
                     key={`${x}-${y}`}
-                    className="stud-cell"
-                    style={placement ? { backgroundColor: color?.hex ?? "#111827" } : undefined}
+                    className={`stud-cell${isSelected ? ` in-selection ${selectionEdges}` : ""}`}
+                    style={
+                      placement
+                        ? { backgroundColor: color?.hex ?? "#111827" }
+                        : undefined
+                    }
                     onPointerDown={() => startDrag(x, y)}
                     onPointerEnter={() => continueDrag(x, y)}
                     title={`(${x + 1}, ${y + 1})`}
@@ -598,7 +961,10 @@ export default function Home() {
               <span>Count</span>
             </div>
             {bom.map((item) => (
-              <div className="table-row" key={`${item.partType}-${item.colorId}`}>
+              <div
+                className="table-row"
+                key={`${item.partType}-${item.colorId}`}
+              >
                 <span>{partTypeToDisplayName(item.partType)}</span>
                 <span className="bom-color">
                   <i style={{ backgroundColor: item.colorHex }} />
@@ -607,7 +973,9 @@ export default function Home() {
                 <span>{item.count}</span>
               </div>
             ))}
-            {bom.length === 0 ? <p className="subtle">No parts placed yet.</p> : null}
+            {bom.length === 0 ? (
+              <p className="subtle">No parts placed yet.</p>
+            ) : null}
           </div>
         </section>
 
@@ -624,9 +992,13 @@ export default function Home() {
               </article>
             ))}
             {instructions.length > 100 ? (
-              <p className="subtle">Showing first 100 steps. Export JSON/HTML for full instructions.</p>
+              <p className="subtle">
+                Showing first 100 steps. Export JSON/HTML for full instructions.
+              </p>
             ) : null}
-            {instructions.length === 0 ? <p className="subtle">No instructions generated yet.</p> : null}
+            {instructions.length === 0 ? (
+              <p className="subtle">No instructions generated yet.</p>
+            ) : null}
           </div>
         </section>
       </aside>
@@ -664,7 +1036,11 @@ function buildInitialModel(): EditorModel {
   };
 }
 
-function upsertProject(projects: LegoProject[], id: string, project: LegoProject): LegoProject[] {
+function upsertProject(
+  projects: LegoProject[],
+  id: string,
+  project: LegoProject,
+): LegoProject[] {
   const index = projects.findIndex((item) => item.id === id);
 
   if (index < 0) {
@@ -676,7 +1052,10 @@ function upsertProject(projects: LegoProject[], id: string, project: LegoProject
   return next;
 }
 
-function resolveImportedProject(project: LegoProject, existing: LegoProject[]): LegoProject {
+function resolveImportedProject(
+  project: LegoProject,
+  existing: LegoProject[],
+): LegoProject {
   const existingIds = new Set(existing.map((item) => item.id));
   const existingNames = new Set(existing.map((item) => item.name));
   const next = { ...project };
@@ -694,20 +1073,30 @@ function resolveImportedProject(project: LegoProject, existing: LegoProject[]): 
 }
 
 function slugify(value: string): string {
-  return value
-    .toLowerCase()
-    .trim()
-    .replaceAll(/[^a-z0-9]+/g, "-")
-    .replaceAll(/(^-|-$)/g, "") || "lego-art";
+  return (
+    value
+      .toLowerCase()
+      .trim()
+      .replaceAll(/[^a-z0-9]+/g, "-")
+      .replaceAll(/(^-|-$)/g, "") || "lego-art"
+  );
 }
 
-function downloadTextFile(filename: string, content: string, contentType: string) {
+function downloadTextFile(
+  filename: string,
+  content: string,
+  contentType: string,
+) {
   const blob = new Blob([content], { type: contentType });
   const url = URL.createObjectURL(blob);
   downloadDataUrl(filename, url, true);
 }
 
-function downloadDataUrl(filename: string, url: string, revokeAfterDownload = false) {
+function downloadDataUrl(
+  filename: string,
+  url: string,
+  revokeAfterDownload = false,
+) {
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
@@ -737,6 +1126,15 @@ function clampGridSize(value: number): number {
 
 function shouldShowAxisMarker(value: number): boolean {
   return value === 1 || value % 5 === 0;
+}
+
+function getSelectionBounds(selection: GridSelection): SelectionBounds {
+  return {
+    left: Math.min(selection.anchor.x, selection.focus.x),
+    top: Math.min(selection.anchor.y, selection.focus.y),
+    right: Math.max(selection.anchor.x, selection.focus.x),
+    bottom: Math.max(selection.anchor.y, selection.focus.y),
+  };
 }
 
 function subscribeNoop() {
