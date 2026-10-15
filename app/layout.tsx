@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import { site } from "@/lib/site";
 import "./globals.css";
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -43,9 +37,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.className} h-full antialiased`}
     >
-      <body suppressHydrationWarning className="min-h-full">
+      <body suppressHydrationWarning className="m-0 min-h-full bg-[#ebe5d8] bg-[radial-gradient(circle_at_top_left,#fef9c3_0%,transparent_48%),radial-gradient(circle_at_bottom_right,#bfdbfe_0%,transparent_42%)] text-[#1c1917]">
         {children}
       </body>
     </html>
